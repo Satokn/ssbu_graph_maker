@@ -20,19 +20,26 @@ def damage_detect(frame):
 
     return pred
 
+
 def convert_damage(pred_list, damage):
-    removed_list = []
     pred_list = list(pred_list)
+    pred_buffer = pred_list.copy()
 
     for x in pred_list:
         if x.isdigit():
             break
-        removed_list.add(x)
+        pred_buffer.remove("n")
 
     try:
-        damage = int("".join(pred_list))
+        damage = int("".join(pred_buffer))
     except:
-        print(f"can not convert:{pred_list}")
         damage = None
 
     return damage
+
+
+def chk_proper_damage(damage, prev_damage):
+    if damage == 0 or (prev_damage - damage) < 50:
+        print(f"{prev_damage}-{damage}={damage-prev_damage}:{damage == 0}:{(prev_damage - damage) < 50}")
+        return damage
+    return prev_damage

@@ -1,6 +1,6 @@
-import cv2, pickle, statistics
+import cv2, pickle, statistics, sys
 from matplotlib import pyplot as plt
-import sys
+import datetime as dt
 
 model_filename = 'finalized_model.sav'
 loaded_model = pickle.load(open(model_filename, 'rb'))
@@ -11,9 +11,9 @@ vid = cv2.VideoCapture(args[1])
 if not vid.isOpened():
     raise IOError("Couldn't open webcam or video")
 
-from damage_detect import damage_detect, convert_damage
+from damage_detect import damage_detect, convert_damage, chk_proper_damage
 
-damage, c, i, mode_damage_buffer = 0, 0, 0, 0
+damage, c, i, mode_damage_buffer, prev_damage = 0, 0, 0, 0, 0
 damage_list, damage_buffer = [], []
 
 while vid.isOpened():
@@ -30,18 +30,24 @@ while vid.isOpened():
     c += 1
     if c > vid.get(cv2.CAP_PROP_FPS):
         i += 1
+        c = 0
+
         try:
             mode_damage_buffer = statistics.mode(damage_buffer)
         except:
             pass
         damage_buffer = []
-        c = 0
-        print(f"{mode_damage_buffer}")
+        mode_damage_buffer = chk_proper_damage(mode_damage_buffer, prev_damage)
+        #print(f"{mode_damage_buffer}:{prev_damage}")
+        prev_damage = mode_damage_buffer
         damage_list.append(mode_damage_buffer)
 
-vid.release()
+x = [f"{t//60:02}:{t%60:02}" for t in range(i)]
 
-x = list(range(i))
+ticks = 30
+plt.xticks(range(0, len(x), ticks), x[::ticks])
 plt.plot(x, damage_list)
 plt.show()
-plt.close()
+
+vid.release()
+sys.exit()
