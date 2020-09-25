@@ -21,15 +21,18 @@ def damage_detect(frame):
     return pred
 
 def convert_damage(pred_list, damage):
+    removed_list = []
     pred_list = list(pred_list)
+
     for x in pred_list:
         if x.isdigit():
             break
-        pred_list.remove("n")
+        removed_list.add(x)
 
     try:
         damage = int("".join(pred_list))
     except:
+        print(f"can not convert:{pred_list}")
         damage = None
 
     return damage
