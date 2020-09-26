@@ -45,7 +45,7 @@ while vid.isOpened():
         prev_damage = mode_damage_buffer
         damage_list.append(mode_damage_buffer)
 
-    print("\r" + f"{i*100//vid_sec}% |====================|", end="")
+    print("\r" + f"{i*100//vid_sec}%", end="")
 
 x = [f"{t//60:02}:{t%60:02}" for t in range(i)]
 
