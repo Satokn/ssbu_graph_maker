@@ -11,6 +11,10 @@ vid = cv2.VideoCapture(args[1])
 if not vid.isOpened():
     raise IOError("Couldn't open webcam or video")
 
+vid_frame = vid.get(cv2.CAP_PROP_FRAME_COUNT)
+vid_fps = vid.get(cv2.CAP_PROP_FPS)
+vid_sec = vid_frame / vid_fps
+
 from damage_detect import damage_detect, convert_damage, chk_proper_damage
 
 damage, c, i, mode_damage_buffer, prev_damage = 0, 0, 0, 0, 0
@@ -38,9 +42,10 @@ while vid.isOpened():
             pass
         damage_buffer = []
         mode_damage_buffer = chk_proper_damage(mode_damage_buffer, prev_damage)
-        #print(f"{mode_damage_buffer}:{prev_damage}")
         prev_damage = mode_damage_buffer
         damage_list.append(mode_damage_buffer)
+
+    print("\r" + f"{i*100//vid_sec}% |====================|", end="")
 
 x = [f"{t//60:02}:{t%60:02}" for t in range(i)]
 

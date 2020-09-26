@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 import numpy as np
 
 def damage_detect(frame):
-    from detect_main import loaded_model
+    from main import loaded_model
 
     x, y = [131, 146, 159], 245
     h, w = 20, 16
@@ -40,6 +40,5 @@ def convert_damage(pred_list, damage):
 
 def chk_proper_damage(damage, prev_damage):
     if damage == 0 or (prev_damage - damage) < 50:
-        print(f"{prev_damage}-{damage}={damage-prev_damage}:{damage == 0}:{(prev_damage - damage) < 50}")
         return damage
     return prev_damage
