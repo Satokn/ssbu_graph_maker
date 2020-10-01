@@ -45,12 +45,18 @@ while vid.isOpened():
         prev_damage = mode_damage_buffer
         damage_list.append(mode_damage_buffer)
 
-    print("\r" + f"{i*100//vid_sec}%", end="")
+    #print progress
+    prog_value = vid.get(cv2.CAP_PROP_POS_FRAMES)/vid.get(cv2.CAP_PROP_FRAME_COUNT)*100
+    prog_bar = "".join(["=" for x in range(int(prog_value//5))] + [" " for x in range(int(20-prog_value//5))])
+    print("\r" + f"{prog_value:.1f}% |{prog_bar}|", end="")
 
+#convert MM:SS
 x = [f"{t//60:02}:{t%60:02}" for t in range(i)]
 
 ticks = 30
 plt.xticks(range(0, len(x), ticks), x[::ticks])
+plt.xlabel("time")
+plt.ylabel("damage")
 plt.plot(x, damage_list)
 plt.show()
 
