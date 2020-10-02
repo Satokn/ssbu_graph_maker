@@ -2,6 +2,7 @@ import cv2, pickle, statistics, sys
 from matplotlib import pyplot as plt
 import datetime as dt
 
+#load train model
 model_filename = 'finalized_model.sav'
 loaded_model = pickle.load(open(model_filename, 'rb'))
 
@@ -15,6 +16,7 @@ vid_frame = vid.get(cv2.CAP_PROP_FRAME_COUNT)
 vid_fps = vid.get(cv2.CAP_PROP_FPS)
 vid_sec = vid_frame / vid_fps
 
+#detect damage
 from damage_detect import damage_detect, convert_damage, chk_proper_damage
 
 damage, c, i, mode_damage_buffer, prev_damage = 0, 0, 0, 0, 0
@@ -26,11 +28,13 @@ while vid.isOpened():
     if ret==False:
         break
 
+    #detect damage every frame
     pred_list = damage_detect(frame)
     damage = convert_damage(pred_list, damage)
     if damage is not None:
         damage_buffer.append(damage)
     
+    #append damage every second
     c += 1
     if c > vid.get(cv2.CAP_PROP_FPS):
         i += 1
@@ -50,9 +54,10 @@ while vid.isOpened():
     prog_bar = "".join(["=" for x in range(int(prog_value//5))] + [" " for x in range(int(20-prog_value//5))])
     print("\r" + f"{prog_value:.1f}% |{prog_bar}|", end="")
 
-#convert MM:SS
+#convert xlabel to MM:SS
 x = [f"{t//60:02}:{t%60:02}" for t in range(i)]
 
+#show figure
 ticks = 30
 plt.xticks(range(0, len(x), ticks), x[::ticks])
 plt.xlabel("time")
@@ -60,5 +65,6 @@ plt.ylabel("damage")
 plt.plot(x, damage_list)
 plt.show()
 
+#exit
 vid.release()
 sys.exit()
