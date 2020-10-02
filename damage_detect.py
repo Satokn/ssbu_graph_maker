@@ -5,7 +5,7 @@ import numpy as np
 def damage_detect(frame):
     from main import loaded_model
 
-    x, y = [131, 146, 159], 245
+    x, y = [131, 146, 159, 328, 343, 356], 245
     h, w = 20, 16
     frame = cv2.resize(frame, (512, 288))
     frame_trim = [frame[y:y+h, i:i+w] for i in x]

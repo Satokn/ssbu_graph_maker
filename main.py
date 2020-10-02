@@ -19,8 +19,8 @@ vid_sec = vid_frame / vid_fps
 #detect damage
 from damage_detect import damage_detect, convert_damage, chk_proper_damage
 
-damage, c, i, mode_damage_buffer, prev_damage = 0, 0, 0, 0, 0
-damage_list, damage_buffer = [], []
+p1_damage, p2_damage, c, i, p1_mode_damage_buffer, p2_mode_damage_buffer, p1_prev_damage, p2_prev_damage = 0, 0, 0, 0, 0, 0, 0, 0
+p1_damage_list, p1_damage_buffer, p2_damage_list, p2_damage_buffer = [], [], [], []
 
 while vid.isOpened():
     ret, frame = vid.read()
@@ -30,9 +30,12 @@ while vid.isOpened():
 
     #detect damage every frame
     pred_list = damage_detect(frame)
-    damage = convert_damage(pred_list, damage)
-    if damage is not None:
-        damage_buffer.append(damage)
+    p1_damage = convert_damage(pred_list[:3], p1_damage)
+    p2_damage = convert_damage(pred_list[3:], p2_damage)
+    if p1_damage is not None:
+        p1_damage_buffer.append(p1_damage)
+    if p2_damage is not None:
+        p2_damage_buffer.append(p2_damage)
     
     #append damage every second
     c += 1
@@ -41,13 +44,22 @@ while vid.isOpened():
         c = 0
 
         try:
-            mode_damage_buffer = statistics.mode(damage_buffer)
+            p1_mode_damage_buffer = statistics.mode(p1_damage_buffer)
         except:
             pass
-        damage_buffer = []
-        mode_damage_buffer = chk_proper_damage(mode_damage_buffer, prev_damage)
-        prev_damage = mode_damage_buffer
-        damage_list.append(mode_damage_buffer)
+
+        try:
+            p2_mode_damage_buffer = statistics.mode(p2_damage_buffer)
+        except:
+            pass
+
+        p1_damage_buffer, p2_damage_buffer = [], []
+        p1_mode_damage_buffer = chk_proper_damage(p1_mode_damage_buffer, p1_prev_damage)
+        p2_mode_damage_buffer = chk_proper_damage(p2_mode_damage_buffer, p2_prev_damage)
+        p1_prev_damage = p1_mode_damage_buffer
+        p2_prev_damage = p2_mode_damage_buffer
+        p1_damage_list.append(p1_mode_damage_buffer)
+        p2_damage_list.append(p2_mode_damage_buffer)
 
     #print progress
     prog_value = vid.get(cv2.CAP_PROP_POS_FRAMES)/vid.get(cv2.CAP_PROP_FRAME_COUNT)*100
@@ -62,7 +74,8 @@ ticks = 30
 plt.xticks(range(0, len(x), ticks), x[::ticks])
 plt.xlabel("time")
 plt.ylabel("damage")
-plt.plot(x, damage_list)
+plt.plot(x, p1_damage_list)
+plt.plot(x, p2_damage_list)
 plt.show()
 
 #exit
